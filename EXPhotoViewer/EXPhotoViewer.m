@@ -32,7 +32,7 @@
         }
     } else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
-        if ([button imageForState:UIControlStateNormal]) {
+        if ([button backgroundImageForState:UIControlStateNormal]) {
             EXPhotoViewer *viewer = [EXPhotoViewer new];
             [viewer showImageFrom:button];
         }
@@ -86,15 +86,15 @@
         self.originalImageRect = [imageView convertRect:imageView.bounds toView:self.view];
     } else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
-        self.theImageView.image = [button imageForState:UIControlStateNormal];
+        self.theImageView.image = [button backgroundImageForState:UIControlStateNormal];
         self.originalImageRect = [button convertRect:button.bounds toView:self.view];
     }
 
     self.theImageView.frame = self.originalImageRect;
     
     [UIView animateWithDuration:0.3 animations:^{
-        self.view.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.7];
-        self.tempViewContainer.layer.transform = CATransform3DMakeScale(0.8, 0.8, 0.8);
+        self.view.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
+        self.tempViewContainer.layer.transform = CATransform3DMakeScale(0.9, 0.9, 0.9);
         self.theImageView.frame = [self centeredOnScreenImage:self.theImageView.image];
     } completion:^(BOOL finished) {
         [self adjustScrollInsetsToCenterImage];
@@ -109,7 +109,7 @@
         imageView.image = nil;
     } else if ([view isKindOfClass:[UIButton class]]) {
         UIButton *button = (UIButton *)view;
-        [button setImage:nil forState:UIControlStateNormal];
+        [button setBackgroundImage:nil forState:UIControlStateNormal];
     }
 }
 
@@ -127,7 +127,7 @@
         if ([self.originalImage isKindOfClass:[UIImageView class]]) {
             ((UIImageView *)self.originalImage).image = self.theImageView.image;
         } else if ([self.originalImage isKindOfClass:[UIButton class]]) {
-            [((UIButton *)self.originalImage) setImage:self.theImageView.image forState:UIControlStateNormal];
+            [((UIButton *)self.originalImage) setBackgroundImage:self.theImageView.image forState:UIControlStateNormal];
         }
        
         self.controller.view.backgroundColor = self.tempViewContainer.backgroundColor;
