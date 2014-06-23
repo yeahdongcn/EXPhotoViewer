@@ -12,24 +12,36 @@
 
 @property (nonatomic, retain) UIScrollView *zoomeableScrollView;
 @property (nonatomic, retain) UIImageView *theImageView;
-@property (nonatomic, retain) UIView* tempViewContainer;
+@property (nonatomic, retain) UIView *tempViewContainer;
 @property (nonatomic, assign) CGRect originalImageRect;
-@property (nonatomic, retain) UIViewController* controller;
-@property (nonatomic, retain) UIViewController* selfController;
-@property (nonatomic, retain) UIImageView* originalImage;
+@property (nonatomic, retain) UIViewController *controller;
+@property (nonatomic, retain) UIViewController *selfController;
+@property (nonatomic, retain) UIView *originalImage;
 
 @end
 
 @implementation EXPhotoViewer
 
-+ (void) showImageFrom:(UIImageView*) imageView {
-    if (imageView.image) {
-        EXPhotoViewer* viewer = [EXPhotoViewer new];
-        [viewer showImageFrom:imageView];
++ (void)showImageFrom:(UIView *)view
+{
+    if ([view isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)view;
+        if (imageView.image) {
+            EXPhotoViewer *viewer = [EXPhotoViewer new];
+            [viewer showImageFrom:imageView];
+        }
+    } else if ([view isKindOfClass:[UIButton class]]) {
+        UIButton *button = (UIButton *)view;
+        if ([button imageForState:UIControlStateNormal]) {
+            EXPhotoViewer *viewer = [EXPhotoViewer new];
+            [viewer showImageFrom:button];
+        }
     }
+
 }
 
--(void)loadView {
+-(void)loadView
+{
     self.view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.view.backgroundColor = [UIColor clearColor];
     
@@ -48,7 +60,7 @@
     self.theImageView = imageView;
 }
 
-- (void) showImageFrom:(UIImageView*) imageView {
+- (void)showImageFrom:(UIView *)view {
     
     UIViewController* controller = [UIApplication sharedApplication].keyWindow.rootViewController;
     self.tempViewContainer = [[UIView alloc] initWithFrame:controller.view.bounds];
@@ -68,8 +80,16 @@
     self.view.backgroundColor = [UIColor clearColor];
     [controller.view addSubview:self.view];
     
-    self.theImageView.image = imageView.image;
-    self.originalImageRect = [imageView convertRect:imageView.bounds toView:self.view];
+    if ([view isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)view;
+        self.theImageView.image = imageView.image;
+        self.originalImageRect = [imageView convertRect:imageView.bounds toView:self.view];
+    } else if ([view isKindOfClass:[UIButton class]]) {
+        UIButton *button = (UIButton *)view;
+        self.theImageView.image = [button imageForState:UIControlStateNormal];
+        self.originalImageRect = [button convertRect:button.bounds toView:self.view];
+    }
+
     self.theImageView.frame = self.originalImageRect;
     
     [UIView animateWithDuration:0.3 animations:^{
@@ -83,8 +103,14 @@
     }];
     
     self.selfController = self; //Stupid ARC I need to do this to avoid being dealloced :P
-    self.originalImage = imageView;
-    imageView.image = nil;
+    self.originalImage = view;
+    if ([view isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)view;
+        imageView.image = nil;
+    } else if ([view isKindOfClass:[UIButton class]]) {
+        UIButton *button = (UIButton *)view;
+        [button setImage:nil forState:UIControlStateNormal];
+    }
 }
 
 - (void) onBackgroundTap {
@@ -98,7 +124,12 @@
         self.view.backgroundColor = [UIColor clearColor];
         self.tempViewContainer.layer.transform = CATransform3DIdentity;
     }completion:^(BOOL finished) {
-        self.originalImage.image = self.theImageView.image;
+        if ([self.originalImage isKindOfClass:[UIImageView class]]) {
+            ((UIImageView *)self.originalImage).image = self.theImageView.image;
+        } else if ([self.originalImage isKindOfClass:[UIButton class]]) {
+            [((UIButton *)self.originalImage) setImage:self.theImageView.image forState:UIControlStateNormal];
+        }
+       
         self.controller.view.backgroundColor = self.tempViewContainer.backgroundColor;
         for (UIView* subView in self.tempViewContainer.subviews) {
             [self.controller.view addSubview:subView];
