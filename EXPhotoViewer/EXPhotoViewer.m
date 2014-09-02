@@ -22,6 +22,18 @@
 
 @implementation EXPhotoViewer
 
+- (UINavigationController *)navigationControllerFromView:(UIView *)view
+{
+    id nextResponder = view;
+    do {
+        if ([nextResponder isKindOfClass:[UINavigationController class]]) {
+            return nextResponder;
+        }
+    } while ((nextResponder = [nextResponder nextResponder]));
+    
+    return nil;
+}
+
 + (void)showImageFrom:(UIView *)view
 {
     if ([view isKindOfClass:[UIImageView class]]) {
@@ -40,7 +52,7 @@
 
 }
 
--(void)loadView
+- (void)loadView
 {
     self.view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.view.backgroundColor = [UIColor clearColor];
@@ -62,7 +74,7 @@
 
 - (void)showImageFrom:(UIView *)view {
     
-    UIViewController* controller = [UIApplication sharedApplication].keyWindow.rootViewController;
+    UIViewController* controller = [self navigationControllerFromView:view];
     self.tempViewContainer = [[UIView alloc] initWithFrame:controller.view.bounds];
     self.tempViewContainer.backgroundColor = controller.view.backgroundColor;
     controller.view.backgroundColor = [UIColor blackColor];
