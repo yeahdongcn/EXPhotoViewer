@@ -234,7 +234,7 @@
     }
     
     [UIView animateWithDuration:0.3 animations:^{
-        scrollView.contentOffset = myScrollViewOffset;
+//        scrollView.contentOffset = myScrollViewOffset;
         scrollView.contentInset = anEdgeInset;
     }];
 }
